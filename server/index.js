@@ -11,6 +11,7 @@ connectDB();
 app.use(express.json())
 
 app.use('/api/users', authRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get("/api/products", (req, res) => {
     res.send("product route is working")

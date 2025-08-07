@@ -54,7 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = asyncHandler(async(req, res) => {
-    const user = await User.findById(req.params._id);
+    const user = await User.findById(req.body._id);
     if(user){
         res.json({
             _id: user._id,
@@ -70,4 +70,11 @@ const getUserProfile = asyncHandler(async(req, res) => {
     }
 })
 
-export default { loginUser, registerUser, getUserProfile }; 
+const logoutUser = asyncHandler(async(req, res) => {
+    res.json({
+        success: true,
+        message: "Logged out successful",
+    })
+})
+
+export default { loginUser, registerUser, getUserProfile, logoutUser }; 
