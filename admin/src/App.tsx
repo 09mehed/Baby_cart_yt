@@ -2,17 +2,21 @@ import { Navigate, Outlet } from "react-router"
 import Sidebar from "./components/dashboard/Sidebar";
 import Header from "./components/common/Header";
 import { cn } from "./lib/utils";
+import useAuthStored from "./stored/useAuthStored";
+import { useState } from "react";
 
 
 function App() {
-  const isAuthenticate = false;
-  if (!isAuthenticate) {
+  const { isAuthenticated } = useAuthStored()
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  if (!isAuthenticated) {
     return <Navigate to={'/login'}></Navigate>
   }
   return (
     <>
       <div className="h-screen flex bg-background">
-        <Sidebar></Sidebar>
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen}></Sidebar>
         <div className={cn("flex flex-col flex-1 max-w-[--breakpoint-2xl] hoverEffect ml-64")}>
           <Header></Header>
           <main>

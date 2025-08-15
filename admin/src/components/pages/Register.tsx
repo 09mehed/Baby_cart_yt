@@ -9,12 +9,14 @@ import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { registerSchema } from "@/lib/validation";
 import { zodResolver } from '@hookform/resolvers/zod';
+import useAuthStored from "@/stored/useAuthStored"
 
 type FormData = z.infer<typeof registerSchema>
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate()
+    const { register } = useAuthStored()
 
     const form = useForm<FormData>({
       resolver: zodResolver(registerSchema),
@@ -29,7 +31,9 @@ const Register = () => {
     const onSubmit = async (data:FormData) => {
       setIsLoading(true)
       try{
-        
+        await register(data)
+        console.log("registration done");
+        navigate("/login")
       }catch(error){
         console.log("Failed to Register", error);
       }

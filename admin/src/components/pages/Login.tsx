@@ -9,17 +9,16 @@ import { loginSchema } from "@/lib/validation";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Loader2, LogIn } from "lucide-react";
+import useAuthStored from "@/stored/useAuthStored";
 
 type FormData = z.infer<typeof loginSchema>
 
-const login = () => {
+const Login = () => {
 
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-
-  const onSubmit = () => {
-
-  }
+  const { login } = useAuthStored()
 
   const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
@@ -28,6 +27,18 @@ const login = () => {
       password: ""
     }
   })
+
+  const onSubmit = async (data:FormData) => {
+    setIsLoading(true);
+    try {
+      await login(data)
+      navigate("/dashboard")
+    } catch (error) {
+      console.error("Failed to login", error);
+    }finally{
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
@@ -91,8 +102,18 @@ const login = () => {
                 />
 
                 <div>
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg font-semibold">
-                     Sign In
+                  <Button type="submit" disabled={isLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg font-semibold">
+                     {!isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="animate-spin"></Loader2>
+                        Singing in...
+                      </span>
+                     ) : (
+                      <span className="flex items-center gap-2">
+                        <LogIn></LogIn>
+                        Sign In
+                      </span>
+                     )}
                 </Button>
                 </div>
               </form>
@@ -108,4 +129,4 @@ const login = () => {
   )
 }
 
-export default login
+export default Login

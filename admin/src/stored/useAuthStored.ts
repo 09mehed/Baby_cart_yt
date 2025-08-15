@@ -1,4 +1,5 @@
-import {crate} from 'zustand';
+import { api } from '@/lib/api';
+import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
 
 type User = {
@@ -24,25 +25,50 @@ interface AuthState {
     checkIsAdmin: () => boolean;
 }
 
-const useAuthStored = crate<AuthState>()(
+const useAuthStored = create<AuthState>()(
     persist(
         (set, get) => ({
             user:null,
             token: null,
             isAuthenticated: false,
-            login: async(Credential) => {},
+            login: async(credential) => {
+                try {
+                    const response = await api.post("/auth/login", credential)
+                    if(response.data.token){
+                        set({
+                            user: response.data,
+                            token: response.data.token,
+                            isAuthenticated: true
+                        })
+
+                    }
+                } catch (error) {
+                    console.error("login error", error);
+                }
+            },
             register: async (userData) => {
                 try {
-                    await api
+                    await api.post("/auth/register", userData)
                 } catch (error) {
                     console.error("Registration error", error);
                 }
             },
-            logout: () => {},
-            checkIsAdmin: () => {},
+            logout: () => {
+                set({
+                    user: null,
+                    token: null,
+                    isAuthenticated: false
+                })
+            },
+            checkIsAdmin: () => {
+                const { user } = get();
+                return user?.role === "admin";
+            },
         }),
         {
             name: "auth-storage",
         }
     )
 )
+
+export default useAuthStored

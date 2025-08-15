@@ -2,12 +2,25 @@ import express from 'express'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js';
+import cors from 'cors'
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000;
 
 connectDB();
 
+const allowedOrigin = [process.env.ADMIN_URL].filter(Boolean);
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true);
+    if(process.env.NODE_ENV === "development"){
+      return callback(null, true)
+    }
+  },
+  credentials: true,
+  methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-type", "Authorization"],
+}))
 app.use(express.json())
 
 app.use('/api/users', authRoutes);

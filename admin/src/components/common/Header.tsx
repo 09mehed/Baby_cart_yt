@@ -1,7 +1,26 @@
+import useAuthStored from "@/stored/useAuthStored"
+import { Button } from "../ui/button"
+import { Bell } from "lucide-react"
 
 const Header = () => {
+  const { user } = useAuthStored()
   return (
-    <div>Header</div>
+    <header className="sticky top-0 z-10 flex items-center h-16 bg-background border-b border-border px-4">
+      <div className="flex items-center gap-4 ml-auto">
+        <Button variant={"ghost"} size={"icon"} className="rounded-full border border-border">
+          <Bell size={18}></Bell>
+        </Button>
+        <div>
+          <div className="hidden md:block">
+            <p className="text-sm font-medium">{user?.name}</p>
+            <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+          </div>
+        </div>
+        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold overflow-hidden border border-border">
+          {user?.avatar ? <img src={user?.avatar} alt="avatarImage" className="w-full h-full object-cover" /> : user?.name?.charAt(0).toUpperCase()}
+        </div>
+      </div>
+    </header>
   )
 }
 
