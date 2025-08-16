@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js';
+import userRoute from './routes/userRoute.js';
 import cors from 'cors'
 dotenv.config()
 const app = express()
@@ -23,8 +24,8 @@ app.use(cors({
 }))
 app.use(express.json())
 
-app.use('/api/users', authRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoute)
 
 app.get("/api/products", (req, res) => {
     res.send("product route is working")

@@ -17,7 +17,7 @@ function App() {
     <>
       <div className="h-screen flex bg-background">
         <Sidebar open={sidebarOpen} setOpen={setSidebarOpen}></Sidebar>
-        <div className={cn("flex flex-col flex-1 max-w-[--breakpoint-2xl] hoverEffect ml-64")}>
+        <div className={cn("flex flex-col flex-1 max-w-[--breakpoint-2xl] hoverEffect", sidebarOpen ? "ml-64" : "ml-20")}>
           <Header></Header>
           <main>
             <Outlet></Outlet>
