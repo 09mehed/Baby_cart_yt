@@ -15,8 +15,11 @@ import { userSchema } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { ImageUpload } from "../ui/image-upload"
-import { toNamespacedPath } from "path"
 import { toast } from "sonner"
+import { fi } from "zod/v4/locales"
+import { Skeleton } from "../ui/skeleton"
+import UserSkeleton from "../skeleton/user-skeleton"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog"
 
 type FormData = z.infer<typeof userSchema>
 
@@ -31,7 +34,7 @@ const Users = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-  const [seletedUser, setSeletedUser] = useState<UserInterface | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null)
   const [formLoading, setFormLoading] = useState(false)
   const [searchItem, setSearchItem] = useState("")
   const [roleFilter, setRoleFilter] = useState<string>("all")
@@ -85,13 +88,66 @@ const Users = () => {
   const handleAddUser = async (data: FormData) => {
     setFormLoading(true)
     try {
-      
+      await axiosPrivate.post("/users", data)
+      toast("User created successfully")
+      formAdd.reset();
+      setIsAddModalOpen(false);
+      fetchUsers()
     } catch (error) {
       console.error("Failed to create user", error);
       toast("Failed to create user")
-    }finally{
-      setLoading(false)
+    } finally {
+      setFormLoading(false)
     }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      const response = await axiosPrivate.get("/users", {
+        params: {
+          page, perPage,
+          role: roleFilter !== "all" ? roleFilter : undefined,
+        }
+      });
+      if (response.data) {
+        setUsers(response.data)
+        // setTotal(response.data.total || response.data.users.length);
+        // setTotalPages(response.data.totalPages || 1)
+      } else {
+        setUsers(response.data)
+        // setTotal(response.data.length);
+        // setTotalPages(1)
+      }
+      toast("user refresh successfully")
+    } catch (error) {
+      console.log("Failed to refresh users", error);
+      toast("failed to refresh user")
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const handleDelete = (user: user) => {
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDeleteUser = async() => {
+    if(!selectedUser) return;
+    setLoading(true);
+    try {
+      await axiosPrivate.delete(`/users/${selectedUser?._id}`)
+      toast("user deleted successfully")
+      fetchUsers();
+    } catch (error) {
+      console.log("Failed to delete user", error);
+      toast("Failed to delete user")
+    }
+  }
+
+  if (loading) {
+    return <UserSkeleton></UserSkeleton>
   }
 
   return (
@@ -106,8 +162,8 @@ const Users = () => {
             <Users2 className="w-8 h-8 "></Users2>
             <p className="text-2xl font-bold">{users?.length}</p>
           </div>
-          <Button variant={"outline"} className="border-blue-600 text-blue-600 hover:bg-blue-50 hoverEffect">
-            <RefreshCcw ></RefreshCcw> Refresh
+          <Button onClick={handleRefresh} disabled={refreshing} variant={"outline"} className="border-blue-600 text-blue-600 hover:bg-blue-50 hoverEffect">
+            <RefreshCcw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}></RefreshCcw> {refreshing ? "Refreshing..." : "Refresh"}
           </Button>
           {
             isAdmin && (
@@ -163,7 +219,7 @@ const Users = () => {
                       <Button variant={"ghost"} size="icon" title="Edit user">
                         <Edit />
                       </Button>
-                      <Button variant={"ghost"} size="icon" title="Delete user">
+                      <Button onClick={() => handleDelete(user)} variant={"ghost"} size="icon" title="Delete user">
                         <Trash />
                       </Button>
                     </div>
@@ -178,7 +234,6 @@ const Users = () => {
               </TableRow>
             )}
           </TableBody>
-
         </Table>
       </div>
       {/* Add user Modal */}
@@ -269,13 +324,34 @@ const Users = () => {
                   Cancel
                 </Button>
                 <Button onClick={() => setIsAddModalOpen(false)} disabled={formLoading} className="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 rounded-lg hoverEffect" type="submit">
-                  {formLoading ? ( <> <Loader2 className="animate-spin"></Loader2> Creating</> ) : "Create User"}
+                  {formLoading ? (<> <Loader2 className="animate-spin"></Loader2> Creating</>) : "Create User"}
                 </Button>
               </DialogFooter>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete user modal */}
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are You sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action can not be undone. This will permanently delete{" "}
+              <span className="font-semibold">
+                {selectedUser?.name}
+              </span>'s account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
