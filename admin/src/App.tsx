@@ -4,6 +4,7 @@ import Header from "./components/common/Header";
 import { cn } from "./lib/utils";
 import useAuthStored from "./stored/useAuthStored";
 import { useState } from "react";
+import { Toaster } from 'sonner';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Outlet></Outlet>
           </main>
         </div>
+        <Toaster position="bottom-right"></Toaster>
       </div>
     </>
   )
