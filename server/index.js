@@ -22,7 +22,8 @@ app.use(cors({
   methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-type", "Authorization"],
 }))
-app.use(express.json({ limit: "20mb" }))
+app.use(express.json({ limit: "10mb" }))
+app.use(express.urlencoded({ limit: "10mb", extended: true }))
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoute)

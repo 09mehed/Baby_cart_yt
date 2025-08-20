@@ -17,7 +17,7 @@ export const userSchema = z.object({
     email: z.string().email({ message: "Please enter a valid email address" }),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }).optional(),
     role: z.enum(["admin", "user", "deliveryman"], {
-        errorMap: () => ({message: "Please select a valid role"}),
+        message: "Please select a valid role",
     }),
     avatar: z.string().optional(),
 })

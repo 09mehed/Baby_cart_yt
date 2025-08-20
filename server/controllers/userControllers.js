@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 const getUsers = asyncHandler(async (req, res) => {
     const users = await User.find({}).select("-password");
@@ -45,4 +46,37 @@ const deleteUser = asyncHandler(async(req, res) => {
     }
 })
 
-export { getUsers, createUser, deleteUser }
+const updateUser = asyncHandler(async(req, res) => {
+    const user = await User.findById(req.params.id);
+    if(!user){
+        res.status(404).json({message: "user not found"})
+    }
+    if(user._id.toString() !== req.user._id.toString() && req.user.role !== "admin"){
+        res.status(403).json({message: "Not authorized to update this user"})
+    }
+    user.name = req.body.name || user.name;
+    if(req.body.role){
+        user.role = req.body.role
+    }
+    user.addresses = req.body.addresses || user.addresses;
+
+    if(req.body.avatar && req.body.avatar !== user.avatar){
+        const result = await cloudinary.uploader.upload(req.body.avatar, {
+            folder: "Baby-mart/avatars"
+        })
+        user.avatar = result.secure_url;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        avatar: updatedUser.avatar,
+        role: updatedUser.role,
+        addresses: updatedUser.addresses,
+    });
+})
+
+export { getUsers, createUser, deleteUser, updateUser }
