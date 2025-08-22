@@ -49,7 +49,7 @@ const userSchema = mongoose.Schema({
     wishlist: [],
     cart: [],
 }, {
-    Timestamps: true,
+    timestamps: true,
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword){

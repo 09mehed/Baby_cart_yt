@@ -3,7 +3,13 @@ export interface UserType {
     name: string;
     email: string;
     avatar: string;
-    // role: "admin" | "user" | "deliveryman";
     role: string;
+    createdAt: string;
+}
+
+export interface Brand {
+    _id: string;
+    name: string;
+    image?: string;
     createdAt: string;
 }

@@ -21,3 +21,8 @@ export const userSchema = z.object({
     }),
     avatar: z.string().optional(),
 })
+
+export const brandSchema = z.object({
+    name: z.string().min(2, {message: "Name must be at least 2 characters"}),
+    image: z.string().optional(),
+})

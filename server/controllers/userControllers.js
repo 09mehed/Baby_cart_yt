@@ -8,17 +8,27 @@ const getUsers = asyncHandler(async (req, res) => {
 })
 
 const createUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role, addresses } = req.body;
+    const { name, email, password, role, addresses, avatar } = req.body;
     const userExists = await User.findOne({ email });
     if (userExists) {
         res.status(400).json({message: "User already exists"})
     }
+
+    let avatarUrl = "";
+    if (avatar) {
+        const result = await cloudinary.uploader.upload(avatar, {
+            folder: "Baby-mart/avatars",
+        });
+        avatarUrl = result.secure_url;
+    }
+
     const user = await User.create({
         name,
         email,
         password,
         role,
         addresses: addresses || [],
+        avatar: avatarUrl || "",
     });
     if (user) {
         res.status(201).json({
@@ -37,8 +47,6 @@ const createUser = asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async(req, res) => {
     const user = await User.findById(req.params.id)
     if(user){
-        // delete user cart
-        // Delete user
         await user.deleteOne();
         res.json({ message: "user removed" })
     }else{

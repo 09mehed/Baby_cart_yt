@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate"
 import { Edit, Eye, Loader2, Plus, RefreshCcw, Search, Trash, Users2 } from "lucide-react"
 import { useEffect, useState } from "react"
